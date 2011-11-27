@@ -126,6 +126,8 @@ function spam_throttle_check($event, $object_type, $object) {
 
 
 function spam_throttle_limit_exceeded($time, $created, $type){
+	
+	if(get_loggedin_user()){
 		
 	$report = new ElggObject;
 	$report->subtype = "reported_content";
@@ -164,6 +166,7 @@ function spam_throttle_limit_exceeded($time, $created, $type){
 			
 		default:
 			break;
+	}
 	}
 }
 
