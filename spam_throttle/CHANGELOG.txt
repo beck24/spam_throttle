@@ -5,4 +5,5 @@ v1.0
 Initial Release
 
 v1.1
-Admin now correctly checked in picker to show exemption from throttling.
+Fixed an issue that prevented new users from registering.
+
