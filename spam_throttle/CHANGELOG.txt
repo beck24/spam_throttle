@@ -7,3 +7,6 @@ Initial Release
 v1.1
 Fixed an issue that prevented new users from registering.
 
+12/01/2011
+v1.2
+Added "Unsuspend" admin ability
