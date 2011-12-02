@@ -26,6 +26,7 @@
 		'spam_throttle:helptext:limit' => "Maximum number of %s allowed",
 		'spam_throttle:helptext:time' => "Time interval in minutes",
 		'spam_throttle:helptext:suspensiontime' => "Length of time (in hours) for a suspension.",
+		'spam_throttle:invalid:id' => "Invalid user ID",
 		'spam_throttle:new_content' => "new content item",
 		'spam_throttle:nothing' => "Nothing",
 		'spam_throttle:nothing:explained' => "The user is still able to log in and create content",
@@ -40,6 +41,9 @@
 		'spam_throttle:suspend:explained' => "The user can log in and view content with their normal permissions, but cannot create new content for a set amount of time.",
 		'spam_throttle:suspended' => "You are temporarily suspended from posting new content. Your suspension will end in %s hours, %s minutes",
 		'spam_throttle:suspensiontime' => "Suspension Length",
+		'spam_throttle:unsuspend' => "Unsuspend",
+		'spam_throttle:unsuspend:confirm' => "Are you sure?",
+		'spam_throttle:unsuspended' => "User has been unsuspended.",
 	);
 					
 	add_translation("en",$english);

@@ -9,7 +9,7 @@
 * @return boolean
 */
 function spam_throttle_check($event, $object_type, $object) {
-	
+
 	// release exempt users
 	if(isadminloggedin()){
 		return;
@@ -177,4 +177,25 @@ function spam_throttle_posint($value){
 		return TRUE;
 	}
 	return FALSE;
+}
+
+
+// hook for menu:user_hover
+function spam_throttle_hover_menu($hook, $type, $return, $params) {
+	global $CONFIG;
+	$user = $params['entity'];
+	
+	if($user->spam_throttle_suspension > time() && isadminloggedin()){
+		$ts = time();
+		$token = generate_action_token($ts);
+	
+		$url = $CONFIG->url . "action/spam_throttle/unsuspend?guid={$user->guid}&__elgg_token=$token&__elgg_ts=$ts";
+		$item = new ElggMenuItem("spam_throttle_unsuspend", elgg_echo("spam_throttle:unsuspend"), $url);
+		$item->setConfirmText(elgg_echo('spam_throttle:unsuspend:confirm'));
+		$item->setSection('admin');
+	
+		$return[] = $item;
+	}
+	
+	return $return;
 }
