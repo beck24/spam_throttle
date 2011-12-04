@@ -56,12 +56,21 @@ function spam_throttle_check($event, $object_type, $object) {
 		);
 		
 		$entitycount = elgg_get_entities($params);
-		$commentcount = count_annotations(0, "", "", "generic_comment", "", "", get_loggedin_userid(), $params['created_time_lower'], 0);
+
+		$params = array(
+			'annotation_names' => array('generic_comment'),
+			'annotation_owner_guids' => array(get_loggedin_userid()),
+			'annotation_created_time_lower' => time() - (60*$time),
+			'annotation_calculation' => 'COUNT',
+		);
+				
+		$commentcount = elgg_get_annotations($params);
+		
 		
 		$activitytotal = $entitycount + $commentcount;
 		
 		if($activitytotal > $globallimit){
-			spam_throttle_limit_exceeded($globaltime, $activitytotal, "Activity");
+			spam_throttle_limit_exceeded($globaltime, $activitytotal, 'global');
 			
 			// not returning false in case of false positive
 			return;
@@ -108,11 +117,18 @@ function spam_throttle_check($event, $object_type, $object) {
 			$time = get_plugin_setting('annotation_generic_comment_time', 'spam_throttle');
 	
 			if(is_numeric($limit) && $limit > 0 && is_numeric($time) && $time > 0){
+				
+				$params = array(
+					'annotation_names' => array('generic_comment'),
+					'annotation_owner_guids' => array(get_loggedin_userid()),
+					'annotation_created_time_lower' => time() - (60*$time),
+					'annotation_calculation' => 'COUNT',
+				);
+				
+				$commentcount = elgg_get_annotations($params);
 
-				$commentcount = count_annotations(0, "", "", "generic_comment", "", "", get_loggedin_userid(), time() - (60*$time), 0);
-			
 				if($commentcount > $limit){
-					spam_throttle_limit_exceeded($time, $commentcount, 'generic_comment');
+					spam_throttle_limit_exceeded($time, $commentcount, 'annotation_generic_comment');
 				
 					// not returning false in case of false positive
 					return;
@@ -128,17 +144,42 @@ function spam_throttle_check($event, $object_type, $object) {
 function spam_throttle_limit_exceeded($time, $created, $type){
 	
 	if(get_loggedin_user()){
-		
-	$report = new ElggObject;
-	$report->subtype = "reported_content";
-	$report->owner_guid = get_loggedin_userid();
-	$report->title = elgg_echo('spam_throttle');
-	$report->address = get_loggedin_user()->getURL();
-	$report->description = sprintf(elgg_echo('spam_throttle:reported'), $type, $created, $time);
-	$report->access_id = ACCESS_PRIVATE;
-	$report->save();
+		$reporttime = get_plugin_setting('reporttime', 'spam_throttle');
 	
-	$consequence = get_plugin_setting('consequence', 'spam_throttle');
+		$params = array(
+			'types' => array('object'),
+			'subtypes' => array('reported_content'),
+			'owner_guids' => array(get_loggedin_userid()),
+			'time_created_lower' => time() - (60*60*$reporttime),
+		);
+		
+		$reports = elgg_get_entities($params);
+		
+		if(!$reports){
+			$reports = array();
+		}
+		
+		$sendreport = TRUE;
+		foreach($reports as $previousreport){
+			if($previousreport->title == elgg_echo('spam_throttle')){
+				// we've already been reported
+				$sendreport = FALSE;
+			}
+		}
+		
+		
+		if($sendreport){
+			$report = new ElggObject;
+			$report->subtype = "reported_content";
+			$report->owner_guid = get_loggedin_userid();
+			$report->title = elgg_echo('spam_throttle');
+			$report->address = get_loggedin_user()->getURL();
+			$report->description = sprintf(elgg_echo('spam_throttle:reported'), $type, $created, $time);
+			$report->access_id = ACCESS_PRIVATE;
+			$report->save();
+		}
+	
+		$consequence = get_plugin_setting($type.'_consequence', 'spam_throttle');
 	
 	switch ($consequence){
 		case "nothing":

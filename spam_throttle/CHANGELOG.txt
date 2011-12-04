@@ -10,3 +10,9 @@ Fixed an issue that prevented new users from registering.
 12/01/2011
 v1.2
 Added "Unsuspend" admin ability
+
+12/04/2011
+v1.3
+Added consequences for each content type
+Added time limit for reported content
+Fixed incorrect comment count

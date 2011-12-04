@@ -21,7 +21,7 @@ function spam_throttle_pagesetup() {
 
 	if (get_context() == 'admin' && isadminloggedin()) {
 		global $CONFIG;
-		add_submenu_item(elgg_echo('spam_throttle:settings'), $CONFIG->wwwroot . 'pg/spam_throttle/');
+		add_submenu_item(elgg_echo('spam_throttle:settings'), $CONFIG->wwwroot . 'spam_throttle/admin/');
 	}
 }
 

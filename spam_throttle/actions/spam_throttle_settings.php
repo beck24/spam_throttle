@@ -11,15 +11,21 @@ $exempt = get_input('exempt');
 
 // save settings
 foreach($settings as $name => $value){
-	(int)$value;
-	if(empty($value) || spam_throttle_posint($value) || $name == 'consequence'){
-		set_plugin_setting($name, $value, 'spam_throttle');
+	if($name != "consequence"){
+		(int)$value;
+		if(empty($value) || spam_throttle_posint($value)){
+			set_plugin_setting($name, $value, 'spam_throttle');
+		}
+		else{
+			// set error for individual fields
+			$error = TRUE;
+			register_error(sprintf(elgg_echo('spam_throttle:settings:notint'), $name));
+		}
 	}
-	else{
-		// set error for individual fields
-		$error = TRUE;
-		register_error(sprintf(elgg_echo('spam_throttle:settings:notint'), $name));
-	}
+}
+
+foreach($settings['consequence'] as $type => $consequence){
+	set_plugin_setting($type.'_consequence', $consequence, 'spam_throttle');
 }
 
 // save exemptions
