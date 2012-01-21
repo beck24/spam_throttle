@@ -16,3 +16,6 @@ v1.3
 Added consequences for each content type
 Added time limit for reported content
 Fixed incorrect comment count
+
+01/21/12
+Upgraded some deprecated functions for 1.8.3

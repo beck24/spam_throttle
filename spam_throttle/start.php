@@ -23,8 +23,6 @@ function spam_throttle_pagesetup() {
 	  $item = new ElggMenuItem('spam_throttle', elgg_echo('spam_throttle:settings'), elgg_get_site_url() . 'spam_throttle/admin/');
 	  $item->setParent('settings');
 	  elgg_register_menu_item('page', $item);
-//		global $CONFIG;
-//		add_submenu_item(elgg_echo('spam_throttle:settings'), $CONFIG->wwwroot . 'spam_throttle/admin/');
 	}
 }
 
@@ -37,7 +35,7 @@ function spam_throttle_page_handler()
 }
 
 //register action to save our plugin settings
-register_action("spam_throttle/settings", false, $CONFIG->pluginspath . "spam_throttle/actions/spam_throttle_settings.php", true);
-register_action("spam_throttle/unsuspend", false, $CONFIG->pluginspath . "spam_throttle/actions/unsuspend.php", true);
+elgg_register_action("spam_throttle/settings", elgg_get_plugins_path() . "spam_throttle/actions/spam_throttle_settings.php", 'admin');
+elgg_register_action("spam_throttle/unsuspend", elgg_get_plugins_path() . "spam_throttle/actions/unsuspend.php", 'admin');
 
-register_elgg_event_handler('init', 'system', 'spam_throttle_init');
+elgg_register_event_handler('init', 'system', 'spam_throttle_init');
