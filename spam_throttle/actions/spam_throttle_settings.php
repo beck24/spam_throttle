@@ -14,7 +14,7 @@ foreach($settings as $name => $value){
 	if($name != "consequence"){
 		(int)$value;
 		if(empty($value) || spam_throttle_posint($value)){
-			set_plugin_setting($name, $value, 'spam_throttle');
+			elgg_set_plugin_setting($name, $value, 'spam_throttle');
 		}
 		else{
 			// set error for individual fields
@@ -25,12 +25,12 @@ foreach($settings as $name => $value){
 }
 
 foreach($settings['consequence'] as $type => $consequence){
-	set_plugin_setting($type.'_consequence', $consequence, 'spam_throttle');
+	elgg_set_plugin_setting($type.'_consequence', $consequence, 'spam_throttle');
 }
 
 // save exemptions
 if(is_array($exempt)){
-	set_plugin_setting('exempt', serialize($exempt), 'spam_throttle');
+	elgg_set_plugin_setting('exempt', serialize($exempt), 'spam_throttle');
 }
 
 if(!$error){

@@ -8,20 +8,23 @@ function spam_throttle_init(){
 	// Load the language file
 	register_translations($CONFIG->pluginspath . "spam_throttle/languages/");
 	
-	register_page_handler('spam_throttle','spam_throttle_page_handler');
+	elgg_register_page_handler('spam_throttle','spam_throttle_page_handler');
 	
-	register_elgg_event_handler('create', 'object', 'spam_throttle_check');
-	register_elgg_event_handler('create', 'annotation', 'spam_throttle_check');
-	register_elgg_event_handler('pagesetup','system','spam_throttle_pagesetup');
+	elgg_register_event_handler('create', 'object', 'spam_throttle_check');
+	elgg_register_event_handler('create', 'annotation', 'spam_throttle_check');
+	elgg_register_event_handler('pagesetup','system','spam_throttle_pagesetup');
 	
 	elgg_register_plugin_hook_handler('register', 'menu:user_hover', 'spam_throttle_hover_menu', 1000);
 }
 
 function spam_throttle_pagesetup() {
 
-	if (get_context() == 'admin' && isadminloggedin()) {
-		global $CONFIG;
-		add_submenu_item(elgg_echo('spam_throttle:settings'), $CONFIG->wwwroot . 'spam_throttle/admin/');
+	if (elgg_get_context() == 'admin' && elgg_is_admin_logged_in()) {
+	  $item = new ElggMenuItem('spam_throttle', elgg_echo('spam_throttle:settings'), elgg_get_site_url() . 'spam_throttle/admin/');
+	  $item->setParent('settings');
+	  elgg_register_menu_item('page', $item);
+//		global $CONFIG;
+//		add_submenu_item(elgg_echo('spam_throttle:settings'), $CONFIG->wwwroot . 'spam_throttle/admin/');
 	}
 }
 
