@@ -15,8 +15,7 @@ function spam_throttle_check($event, $object_type, $object) {
 		return;
 	}
 	
-	$exempt = unserialize(elgg_get_plugin_setting('exempt', 'spam_throttle'));
-	if(is_array($exempt) && in_array(get_loggedin_userid(), $exempt)){
+	if(spam_throttle_is_exempt(elgg_get_logged_in_user_guid())){
 		return;
 	}
 	
@@ -143,7 +142,7 @@ function spam_throttle_check($event, $object_type, $object) {
 
 function spam_throttle_limit_exceeded($time, $created, $type){
 	
-	if(get_loggedin_user()){
+	if(elgg_get_logged_in_user_entity()){
 		$reporttime = elgg_get_plugin_setting('reporttime', 'spam_throttle');
 	
 		$params = array(
@@ -196,7 +195,7 @@ function spam_throttle_limit_exceeded($time, $created, $type){
 			ban_user(elgg_get_logged_in_user_guid(), elgg_echo('spam_throttle:banned'));
 			logout();
 			register_error(elgg_echo('spam_throttle:banned'));
-			forward($CONFIG->url);
+			forward(elgg_get_site_url());
 			break;
 			
 		case "delete":
@@ -223,14 +222,13 @@ function spam_throttle_posint($value){
 
 // hook for menu:user_hover
 function spam_throttle_hover_menu($hook, $type, $return, $params) {
-	global $CONFIG;
 	$user = $params['entity'];
 	
 	if($user->spam_throttle_suspension > time() && elgg_is_admin_logged_in()){
 		$ts = time();
 		$token = generate_action_token($ts);
 	
-		$url = $CONFIG->url . "action/spam_throttle/unsuspend?guid={$user->guid}&__elgg_token=$token&__elgg_ts=$ts";
+		$url = elgg_get_site_url() . "action/spam_throttle/unsuspend?guid={$user->guid}&__elgg_token=$token&__elgg_ts=$ts";
 		$item = new ElggMenuItem("spam_throttle_unsuspend", elgg_echo("spam_throttle:unsuspend"), $url);
 		$item->setConfirmText(elgg_echo('spam_throttle:unsuspend:confirm'));
 		$item->setSection('admin');
@@ -239,4 +237,14 @@ function spam_throttle_hover_menu($hook, $type, $return, $params) {
 	}
 	
 	return $return;
+}
+
+
+function spam_throttle_is_exempt($guid) {
+  $user = get_user($guid);
+  if ($user) {
+	return ($user->spam_throttle_exempt == 1);
+  }
+  
+  return false;
 }

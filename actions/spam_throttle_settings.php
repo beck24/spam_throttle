@@ -1,13 +1,7 @@
 <?php
 
-// only allow admins to post
-action_gatekeeper();
-admin_gatekeeper();
-
-global $CONFIG;
-
 $settings = get_input('settings');
-$exempt = get_input('exempt');
+$exempt = get_input('members');
 
 // save settings
 foreach($settings as $name => $value){
@@ -30,7 +24,14 @@ foreach($settings['consequence'] as $type => $consequence){
 
 // save exemptions
 if(is_array($exempt)){
-	elgg_set_plugin_setting('exempt', serialize($exempt), 'spam_throttle');
+	foreach ($exempt as $guid) {
+	  $user = get_user($guid);
+	  
+	  if ($user) {
+		$user->spam_throttle_exempt = 1;
+		$user->save();
+	  }
+	}
 }
 
 if(!$error){
