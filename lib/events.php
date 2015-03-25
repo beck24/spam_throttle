@@ -2,6 +2,7 @@
 
 namespace MBeckett\Spam\Throttle;
 use ElggEntity;
+use ElggObject;
 
 /**
  * check if a user is over the threshold for content creation
@@ -79,7 +80,7 @@ function create_check($event, $object_type, $object) {
 			elgg_register_event_handler('shutdown', 'system', __NAMESPACE__ . '\\limit_exceeded');
 			
 			elgg_set_config('spam_throttle_reasons', array(
-				'type' => elgg_echo('item:'.$typesubtype),
+				'type' => $typesubtype,
 				'created' => $entitycount
 			));
 
@@ -119,7 +120,7 @@ function create_check($event, $object_type, $object) {
 			elgg_register_event_handler('shutdown', 'system', __NAMESPACE__ . '\\limit_exceeded');
 			
 			elgg_set_config('spam_throttle_reasons', array(
-				'type' => elgg_echo('item:'.$typesubtype),
+				'type' => $typesubtype,
 				'created' => $entitycount
 			));
 			return false;
@@ -166,17 +167,17 @@ function limit_exceeded() {
 		$reports = array();
 	}
 
-	$sendreport = TRUE;
+	$sendreport = true;
 	foreach ($reports as $previousreport) {
 		if ($previousreport->title == elgg_echo('spam_throttle')) {
 			// we've already been reported
-			$sendreport = FALSE;
+			$sendreport = false;
 		}
 	}
 
 
 	if ($sendreport) {
-		$report = new ElggObject;
+		$report = new \ElggObject;
 		$report->subtype = "reported_content";
 		$report->owner_guid = $user->guid;
 		$report->title = elgg_echo('spam_throttle');
@@ -199,17 +200,20 @@ function limit_exceeded() {
 			break;
 
 		case "ban":
-			ban_user($user, elgg_echo('spam_throttle:banned'));
+			$ia = elgg_set_ignore_access(true);
+			ban_user($user->guid, elgg_echo('spam_throttle:banned'));
+			elgg_set_ignore_access($ia);
 			logout();
 			register_error(elgg_echo('spam_throttle:banned'));
 			forward();
 			break;
 
 		case "delete":
-			$user = elgg_get_logged_in_user_entity();
 			logout();
 			sleep(2); // prevent a race condition before deleting them
+			$ia = elgg_set_ignore_access(true);
 			$user->delete();
+			elgg_set_ignore_access($ia);
 			register_error(elgg_echo('spam_throttle:deleted'));
 			break;
 

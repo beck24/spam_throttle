@@ -18,7 +18,7 @@ function init(){
 	
 	elgg_register_plugin_hook_handler('register', 'menu:user_hover', __NAMESPACE__ . '\\hover_menu', 1000);
 	
-	elgg_register_action("spam_throttle/unsuspend", __DIR__ . "/spam_throttle/actions/unsuspend.php", 'admin');
+	elgg_register_action("spam_throttle/unsuspend", __DIR__ . "/actions/unsuspend.php", 'admin');
 	
 	elgg_register_event_handler('upgrade', 'system', __NAMESPACE__ . '\\upgrades');
 }
