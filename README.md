@@ -1,14 +1,15 @@
-Spam Throttle
+# Spam Throttle
 
 Set limits for the amount and type of content a user can create.
 
-Dependencies:
+### Suggested Plugins
 reported_content
+trusted_users
 
-Installation:
+### Installation
 Unzip to the mod directory.  Enable the plugin through tools administration.
 
-Setup:
+### Setup
 Link to settings will be on the administration menu.
 
 The global limits cover all listed content types. For example, if a user creates 2 blog posts,
@@ -23,13 +24,14 @@ default to the global setting (if that is set).
 
 There are 4 potential consequences of a user breaking the limits.
 
-    Nothing - The user is still able to log in and create content
+**Nothing**
+ - The user is still able to log in and create content
     
-    Suspend - The user can log in and view content with their normal permissions, but cannot
-    		  create new content for a set amount of time.
+**Suspend**
+ - The user can log in and view content with their normal permissions, but cannot create new content for a set amount of time.
     		  
-    Ban - The user is banned from the site, cannot log in, cannot view non-public content, cannot
-          create content
+**Ban**
+ - The user is banned from the site, cannot log in, cannot view non-public content, cannot create content
           
-    Delete - The user account is deleted along with all of their content. Use with care as the
-             deletion cannot be undone, and a false positive wouldn't be fun...
+**Delete**
+ - The user account is deleted along with all of their content. Use with care as the deletion cannot be undone, and a false positive wouldn't be fun...
