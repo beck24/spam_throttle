@@ -14,82 +14,125 @@ echo "<li><b>" . elgg_echo('spam_throttle:ban') . "</b> - " . elgg_echo('spam_th
 echo "<li><b>" . elgg_echo('spam_throttle:delete') . "</b> - " . elgg_echo('spam_throttle:delete:explained') . "</li></ul><br>";
 
 // globals
-echo "<div style=\"padding: 8px; border: 2px solid #454545; margin: 15px 0;\">";
-echo "<h2>" . elgg_echo('spam_throttle:settings:global') . "</h2><br>";
-echo elgg_view('input/text', array('name' => 'settings[global_limit]', 'value' => elgg_get_plugin_setting('global_limit', 'spam_throttle'), 'js' => 'style="width: 50px"'));
-echo " " . sprintf(elgg_echo('spam_throttle:helptext:limit'), elgg_echo('spam_throttle:new_content')) . "<br>";
+$title = elgg_echo('spam_throttle:settings:global');
+$body = elgg_view('input/text', array(
+	'name' => 'params[global_limit]',
+	'value' => $vars['entity']->global_limit,
+));
+$body .= " " . elgg_echo('spam_throttle:helptext:limit', array(elgg_echo('spam_throttle:new_content'))) . "<br>";
 
-echo elgg_view('input/text', array('name' => 'settings[global_time]', 'value' => elgg_get_plugin_setting('global_time', 'spam_throttle'), 'js' => 'style="width: 50px;"'));
-echo " " . elgg_echo('spam_throttle:helptext:time') . "<br><br>";
+$body .= elgg_view('input/text', array(
+	'name' => 'params[global_time]',
+	'value' => $vars['entity']->global_time,
+));
+$body .= " " . elgg_echo('spam_throttle:helptext:time') . '<br><br>';
 
 // action to perform if threshold is broken
-echo "<h2>" . sprintf(elgg_echo('spam_throttle:consequence:title'), elgg_echo('spam_throttle:global')) . "</h2><br>";
-$value = elgg_get_plugin_setting('global_consequence', 'spam_throttle');
-$selectopts = array();
-$selectopts['name'] = "settings[consequence][global]";
-$selectopts['value'] = !empty($value) ? $value : "suspend";
-$selectopts['options_values'] = array('nothing' => elgg_echo('spam_throttle:nothing'), 'suspend' => elgg_echo('spam_throttle:suspend'), 'ban' => elgg_echo('spam_throttle:ban'), 'delete' => elgg_echo('spam_throttle:delete'));
-echo elgg_view('input/dropdown', $selectopts);
-echo "</div>";
+$body .= elgg_view('input/dropdown', array(
+	'name' => 'params[global_consequence]',
+	'value' => $vars['entity']->global_consequence ? $vars['entity']->global_consequence : 'suspend',
+	'options_values' => array(
+		'nothing' => elgg_echo('spam_throttle:nothing'),
+		'suspend' => elgg_echo('spam_throttle:suspend'),
+		'ban' => elgg_echo('spam_throttle:ban'),
+		'delete' => elgg_echo('spam_throttle:delete')
+	)
+));
+$body .= elgg_echo('spam_throttle:consequence:title', array(elgg_echo('spam_throttle:global')));
+echo elgg_view_module('main', $title, $body);
+
+
 
 // loop through all of our object subtypes
+$registered_types = get_registered_entity_types();
+$registered_types['object'][] = 'messages';
 
-// first get a list of all of the subtypes - is there a better way than a direct query?
-$subtypes = get_data("SELECT subtype FROM " . $CONFIG->dbprefix . "entity_subtypes WHERE type = 'object' AND subtype NOT IN('plugin','widget','reported_content')");
+foreach ($registered_types as $type => $subtypes) {
+	if ($subtypes) {
+		foreach ($subtypes as $subtype) {
+			$attr = $type . ':' . $subtype . '_limit';
+			$title = elgg_echo('spam_throttle:settings:subtype', array(elgg_echo("item:{$type}:{$subtype}")));
+			$body = elgg_view('input/text', array(
+				'name' => "params[{$attr}]",
+				'value' => $vars['entity']->$attr,
+			));
+			$body .= ' ' . elgg_echo('spam_throttle:helptext:limit', array(elgg_echo("item:{$type}:{$subtype}"))) . "<br>";
 
-foreach($subtypes as $subtype){
-	echo "<div style=\"padding: 8px; border: 2px solid #454545; margin: 15px 0;\">";
-	echo "<h2>" . sprintf(elgg_echo('spam_throttle:settings:subtype'), elgg_echo($subtype->subtype)) . "</h2><br>";
-	echo elgg_view('input/text', array('name' => 'settings['.$subtype->subtype.'_limit]', 'value' => elgg_get_plugin_setting($subtype->subtype.'_limit', 'spam_throttle'), 'js' => 'style="width: 50px"'));
-	echo " " . sprintf(elgg_echo('spam_throttle:helptext:limit'), elgg_echo($subtype->subtype)) . "<br>";
+			$attr = $type . ':' . $subtype . '_time';
+			$body .= elgg_view('input/text', array(
+				'name' => "params[{$attr}]",
+				'value' => $vars['entity']->$attr,
+			));
+			$body .= " " . elgg_echo('spam_throttle:helptext:time') . '<br><br>';
+		
+			// action to perform if threshold is broken
+			$attr = $type . ':' . $subtype . '_consequence';
+			$body .= elgg_view('input/dropdown', array(
+				'name' => "params[{$attr}]",
+				'value' => $vars['entity']->$attr ? $vars['entity']->$attr : 'suspend',
+				'options_values' => array(
+					'nothing' => elgg_echo('spam_throttle:nothing'),
+					'suspend' => elgg_echo('spam_throttle:suspend'),
+					'ban' => elgg_echo('spam_throttle:ban'),
+					'delete' => elgg_echo('spam_throttle:delete')
+				)
+			));
+			$body .= elgg_echo('spam_throttle:consequence:title', array(elgg_echo("item:{$type}:{$subtype}")));
+			echo elgg_view_module('main', $title, $body);
+		}
+	}
+	else {
+		$attr = $type . '_limit';
+		$title = elgg_echo('spam_throttle:settings:subtype', array(ucfirst($type)));
+		$body = elgg_view('input/text', array(
+			'name' => "params[{$attr}]",
+			'value' => $vars['entity']->$attr,
+		));
+		$body .= ' ' . elgg_echo('spam_throttle:helptext:limit', array(ucfirst($type))) . "<br>";
 
-	echo elgg_view('input/text', array('name' => 'settings['.$subtype->subtype.'_time]', 'value' => elgg_get_plugin_setting($subtype->subtype.'_time', 'spam_throttle'), 'js' => 'style="width: 50px;"'));
-	echo " " . elgg_echo('spam_throttle:helptext:time') . "<br><br>";
-	
-	// action to perform if threshold is broken
-	echo "<h2>" . sprintf(elgg_echo('spam_throttle:consequence:title'), elgg_echo($subtype->subtype)) . "</h2><br>";
-	$value = elgg_get_plugin_setting($subtype->subtype.'_consequence', 'spam_throttle');
-	$selectopts = array();
-	$selectopts['name'] = "settings[consequence][$subtype->subtype]";
-	$selectopts['value'] = !empty($value) ? $value : "suspend";
-	$selectopts['options_values'] = array('nothing' => elgg_echo('spam_throttle:nothing'), 'suspend' => elgg_echo('spam_throttle:suspend'), 'ban' => elgg_echo('spam_throttle:ban'), 'delete' => elgg_echo('spam_throttle:delete'));
-	echo elgg_view('input/dropdown', $selectopts);
-	echo "</div>";
+		$attr = $type . '_time';
+		$body .= elgg_view('input/text', array(
+			'name' => "params[{$attr}]",
+			'value' => $vars['entity']->$attr,
+		));
+		$body .= " " . elgg_echo('spam_throttle:helptext:time') . '<br><br>';
+		
+		// action to perform if threshold is broken
+		$attr = $type . '_consequence';
+		$body .= elgg_view('input/dropdown', array(
+			'name' => "params[{$attr}]",
+			'value' => $vars['entity']->$attr ? $vars['entity']->$attr : 'suspend',
+			'options_values' => array(
+				'nothing' => elgg_echo('spam_throttle:nothing'),
+				'suspend' => elgg_echo('spam_throttle:suspend'),
+				'ban' => elgg_echo('spam_throttle:ban'),
+				'delete' => elgg_echo('spam_throttle:delete')
+			)
+		));
+		$body .= elgg_echo('spam_throttle:consequence:title', array(ucfirst($type)));
+		echo elgg_view_module('main', $title, $body);
+	}
 }
-
-// comments
-echo "<div style=\"padding: 8px; border: 2px solid #454545; margin: 15px 0;\">";
-echo "<h2>" . elgg_echo('spam_throttle:settings:comment') . "</h2><br>";
-echo elgg_view('input/text', array('name' => 'settings[annotation_generic_comment_limit]', 'value' => elgg_get_plugin_setting('annotation_generic_comment_limit', 'spam_throttle'), 'js' => 'style="width: 50px"'));
-echo " " . sprintf(elgg_echo('spam_throttle:helptext:limit'), elgg_echo('spam_throttle:comment')) . "<br>";
-
-echo elgg_view('input/text', array('name' => 'settings[annotation_generic_comment_time]', 'value' => elgg_get_plugin_setting('annotation_generic_comment_time', 'spam_throttle'), 'js' => 'style="width: 50px;"'));
-echo " " . elgg_echo('spam_throttle:helptext:time') . "<br><br>";
-
-// action to perform if threshold is broken
-echo "<h2>" . sprintf(elgg_echo('spam_throttle:consequence:title'), elgg_echo('spam_throttle:comment')) . "</h2><br>";
-$value = elgg_get_plugin_setting('annotation_generic_comment_consequence', 'spam_throttle');
-$selectopts = array();
-$selectopts['name'] = "settings[consequence][annotation_generic_comment]";
-$selectopts['value'] = !empty($value) ? $value : "suspend";
-$selectopts['options_values'] = array('nothing' => elgg_echo('spam_throttle:nothing'), 'suspend' => elgg_echo('spam_throttle:suspend'), 'ban' => elgg_echo('spam_throttle:ban'), 'delete' => elgg_echo('spam_throttle:delete'));
-echo elgg_view('input/dropdown', $selectopts);
-echo "</div>";
 
 
 // length of time of a suspension
-$value = elgg_get_plugin_setting('suspensiontime', 'spam_throttle');
 echo "<h2>" . elgg_echo('spam_throttle:suspensiontime') . "</h2><br>";
-echo elgg_view('input/text', array('name' => 'settings[suspensiontime]', 'value' => !empty($value) ? $value : 24, 'js' => 'style="width: 50px"'));
+echo elgg_view('input/text', array(
+	'name' => 'params[suspensiontime]',
+	'value' => isset($vars['entity']->suspensiontime) ? $vars['entity']->suspensiontime : 24,
+));
 echo " " . elgg_echo('spam_throttle:helptext:suspensiontime') . "<br><br>";
 
 // period for reporting, once in x hours to pre
-$value = elgg_get_plugin_setting('reporttime', 'spam_throttle');
 echo "<h2>" . elgg_echo('spam_throttle:reporttime') . "</h2><br>";
-echo elgg_view('input/text', array('name' => 'settings[reporttime]', 'value' => !empty($value) ? $value : 24, 'js' => 'style="width: 50px"'));
+echo elgg_view('input/text', array(
+	'name' => 'params[reporttime]',
+	'value' => isset($vars['entity']->reporttime) ? $vars['entity']->reporttime : 24
+));
 echo " " . elgg_echo('spam_throttle:helptext:reporttime') . "<br><br>";
 
+?>
 
-echo "<h2>" . elgg_echo('spam_throttle:exemptions') . "</h2><br>";
-echo elgg_view('input/userpicker');
-echo elgg_echo('spam_throttle:helptext:exemptions') . "<br><br>";
+<script>
+	$('input[type="text"]').css('width', '50px');
+</script>

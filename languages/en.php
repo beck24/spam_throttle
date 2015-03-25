@@ -29,7 +29,7 @@ return array(
 	'spam_throttle:helptext:time' => "Time interval in minutes",
 	'spam_throttle:helptext:suspensiontime' => "Length of time (in hours) for a suspension.",
 	'spam_throttle:invalid:id' => "Invalid user ID",
-	'spam_throttle:new_content' => "new content item",
+	'spam_throttle:new_content' => "new content items",
 	'spam_throttle:nothing' => "Nothing",
 	'spam_throttle:nothing:explained' => "The user is still able to log in and create content",
 	'spam_throttle:reported' => "This user exceeded the %s limit by creating %s entries in %s minutes",

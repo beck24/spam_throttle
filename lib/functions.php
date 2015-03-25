@@ -27,7 +27,9 @@ function create_check($event, $object_type, $object) {
 
 	// only want to track content they are creating
 	// some automated scripts may be triggered on their session
-	if (is_registered_entity_type($object->type, $object->getSubtype()) && $object->owner_guid != $user->guid) {
+	// also allow messages
+	if ((is_registered_entity_type($object->type, $object->getSubtype()) && !elgg_instanceof($object, 'object', 'messages'))
+			&& $object->owner_guid != $user->guid) {
 		return true;
 	}
 
@@ -53,7 +55,7 @@ function create_check($event, $object_type, $object) {
 	if (is_numeric($globallimit) && $globallimit > 0 && is_numeric($globaltime) && $globaltime > 0) {
 
 		// because 2 are created initially
-		if ($object->getSubtype() == 'messages') {
+		if (elgg_instanceof($object, 'object', 'messages')) {
 			$globallimit++;
 		}
 
@@ -77,41 +79,42 @@ function create_check($event, $object_type, $object) {
 		}
 	}
 
-	if ($object_type == 'object') {
-		// 	if we're still going now we haven't exceeded globals, check for individual types
-		$limit = elgg_get_plugin_setting($object->getSubtype() . '_limit', 'spam_throttle');
-		$time = elgg_get_plugin_setting($object->getSubtype() . '_time', 'spam_throttle');
-
-		if (is_numeric($limit) && $limit > 0 && is_numeric($time) && $time > 0) {
-
-			// because 2 are created initially
-			if ($object->getSubtype() == 'messages') {
-				$limit++;
-			}
-
-			// 	we have globals set, lets give it a test
-			$default_lowertime = time() - ($time * 60);
-			$time_lower = max(array($default_lowertime, (int) $user->spam_throttle_unsuspended));
-			$params = array(
-				'type' => 'object',
-				'subtypes' => array($object->getSubtype()),
-				'created_time_lower' => $time_lower,
-				'owner_guids' => array($user->guid),
-				'count' => true,
-			);
-
-			$entitycount = elgg_get_entities($params);
-
-			if ($entitycount > $limit) {
-				limit_exceeded($time, $entitycount, $object->getSubtype());
-
-				// not returning false in case of false positive
-				return true;
-			}
-		}
-		return true;
+	// 	if we're still going now we haven't exceeded globals, check for individual types
+	$attr = $object->type;
+	if ($object->getSubtype()) {
+		$attr .= ':' . $object->getSubtype();
 	}
-	
+	$limit = (int) elgg_get_plugin_setting($attr . '_limit', PLUGIN_ID);
+	$time = (int) elgg_get_plugin_setting($attr . '_time', PLUGIN_ID);
+
+	if ($limit && $time) {
+
+		// because 2 are created initially
+		if ($object->getSubtype() == 'messages') {
+			$limit++;
+		}
+
+		// 	we have globals set, lets give it a test
+		$default_lowertime = time() - ($time * 60);
+		$time_lower = max(array($default_lowertime, (int) $user->spam_throttle_unsuspended));
+		$params = array(
+			'type' => 'object',
+			'subtypes' => array($object->getSubtype()),
+			'created_time_lower' => $time_lower,
+			'owner_guids' => array($user->guid),
+			'count' => true,
+		);
+
+		$entitycount = elgg_get_entities($params);
+
+		if ($entitycount > $limit) {
+			limit_exceeded($time, $entitycount, $object->getSubtype());
+
+			// not returning false in case of false positive
+			return true;
+		}
+	}
+
 	return true;
 }
 
