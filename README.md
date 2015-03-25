@@ -22,6 +22,8 @@ will be reported to administrators via the reported_content plugin. Below you ca
 to a user that exceeds the set limits. If a setting is left blank or set to 0, then the limit will
 default to the global setting (if that is set).
 
+*Note - trusted users (via the trusted_users plugin) and administrators are automatically exempt from throttling*
+
 There are 4 potential consequences of a user breaking the limits.
 
 **Nothing**
