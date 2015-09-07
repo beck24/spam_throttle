@@ -1,4 +1,19 @@
 {
     "name": "beck24/spam_throttle",
-    "type": "elgg-plugin"
+    "type": "elgg-plugin",
+    "description": "Allows an administrator to set a limit on the number of each object type that is allowed to be created in a given amount of time",
+    "homepage": "https://github.com/beck24/spam_throttle",
+    "keywords": ["elgg", "plugin", "spam", "analyzer"],
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Matt Beckett"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/beck24/spam_throttle/issues"
+    },
+    "require": {
+        "composer/installers": ">=1.0.8"
+    }
 }
