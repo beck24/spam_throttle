@@ -2,6 +2,9 @@
 
 x.x (mm/dd/yyyy):
 
+2.0.1 (09/06/2015):
+ - bump for packagist
+
 2.0 (03/24/2015):
  - upgrade for 1.9+ compatability
  - general code cleanup, fix some bugs
