@@ -3,7 +3,7 @@
     <name>Spam Throttle</name>
     <id>spam_throttle</id>
     <author>Matt Beckett</author>
-    <version>2.0.3</version>
+    <version>2.1.0</version>
     <description>Configurable time-based limits to content creation to assist in managing spam abuse.</description>
     <website>http://mattbeckett.me/</website>
     <copyright>(C) Matt Beckett 2015</copyright>

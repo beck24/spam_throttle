@@ -21,4 +21,7 @@ function init(){
 	elgg_register_action("spam_throttle/unsuspend", __DIR__ . "/actions/unsuspend.php", 'admin');
 	
 	elgg_register_event_handler('upgrade', 'system', __NAMESPACE__ . '\\upgrades');
+	
+	elgg_register_plugin_hook_handler('spam_throttle', 'entity_count:global', __NAMESPACE__ . '\\global_messages_count_correction');
+	elgg_register_plugin_hook_handler('spam_throttle', 'entity_count', __NAMESPACE__ . '\\messages_count_correction');
 }

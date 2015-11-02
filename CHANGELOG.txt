@@ -2,6 +2,11 @@
 
 x.x (mm/dd/yyyy):
 
+2.1.0 (11/02/2015):
+ - adds plugin hooks for custom count modifications for non-standard entities
+ - adds plugin hook handlers to correct messages counts
+ - adds active status to reported content notifications
+
 2.0.3 (09/06/2015):
  - bump for packagist
 

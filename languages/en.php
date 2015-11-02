@@ -32,7 +32,7 @@ return array(
 	'spam_throttle:new_content' => "new content items",
 	'spam_throttle:nothing' => "Nothing",
 	'spam_throttle:nothing:explained' => "The user is still able to log in and create content",
-	'spam_throttle:reported' => "This user exceeded the %s limit by creating %s entries in %s minutes",
+	'spam_throttle:reported' => "This user exceeded the %s limit by creating %s entries since %s",
 	'spam_throttle:reporttime' => "Reporting Period",
 	'spam_throttle:settings' => "Spam Throttle Settings",
 	'spam_throttle:settings:comment' => "Comment Limit",

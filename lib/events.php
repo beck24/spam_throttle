@@ -74,6 +74,11 @@ function create_check($event, $object_type, $object) {
 		);
 
 		$entitycount = elgg_get_entities($params);
+		
+		// note that some entity types may need to be counted slightly differently
+		// eg. core messages plugin creates a entities on behalf of a recipient, so a direct count of objects is incorrect
+		// let plugins chime in to make corrections for their entities
+		$entitycount = elgg_trigger_plugin_hook('spam_throttle', 'entity_count:global', $params, $entitycount);
 
 		if ($entitycount > $globallimit) {
 			elgg_unregister_event_handler('shutdown', 'system', __NAMESPACE__ . '\\limit_exceeded');
@@ -94,14 +99,10 @@ function create_check($event, $object_type, $object) {
 
 	if ($limit && $time) {
 
-		// because 2 are created initially
-		if ($object->getSubtype() == 'messages') {
-			$limit++;
-		}
-
 		// 	we have globals set, lets give it a test
 		$default_lowertime = time() - ($time * 60);
 		$time_lower = max(array($default_lowertime, (int) $user->spam_throttle_unsuspended));
+
 		$params = array(
 			'type' => $object->type,
 			'created_time_lower' => $time_lower,
@@ -114,6 +115,10 @@ function create_check($event, $object_type, $object) {
 		}
 
 		$entitycount = elgg_get_entities($params);
+		// note that some entity types may need to be counted slightly differently
+		// eg. core messages plugin creates a entities on behalf of a recipient, so a direct count of objects is incorrect
+		// let plugins chime in to make corrections for their entities
+		$entitycount = elgg_trigger_plugin_hook('spam_throttle', 'entity_count', $params, $entitycount);
 
 		if ($entitycount > $limit) {
 			elgg_unregister_event_handler('shutdown', 'system', __NAMESPACE__ . '\\limit_exceeded');
@@ -121,7 +126,8 @@ function create_check($event, $object_type, $object) {
 			
 			elgg_set_config('spam_throttle_reasons', array(
 				'type' => $typesubtype,
-				'created' => $entitycount
+				'created' => $entitycount,
+				'since' => $time_lower
 			));
 			return false;
 		}
@@ -144,6 +150,7 @@ function limit_exceeded() {
 	
 	$created = $params['created'];
 	$type = $params['type'];
+	$since = date('Y-m-d g:ia', $params['since']);
 
 	$user = elgg_get_logged_in_user_entity();
 
@@ -151,21 +158,18 @@ function limit_exceeded() {
 		return;
 	}
 
-	$reporttime = elgg_get_plugin_setting('reporttime', PLUGIN_ID);
+	$reporttime = (int) elgg_get_plugin_setting('reporttime', PLUGIN_ID);
 	$time = time();
+	$created_since = $time - ($reporttime * 60 *60);
 
 	$params = array(
 		'types' => array('object'),
 		'subtypes' => array('reported_content'),
 		'owner_guids' => array($user->guid),
-		'time_created_lower' => $time - (60 * 60 * $reporttime),
+		'created_time_lower' => $created_since,
 	);
 
 	$reports = elgg_get_entities($params);
-
-	if (!$reports) {
-		$reports = array();
-	}
 
 	$sendreport = true;
 	foreach ($reports as $previousreport) {
@@ -175,15 +179,15 @@ function limit_exceeded() {
 		}
 	}
 
-
 	if ($sendreport) {
 		$report = new \ElggObject;
 		$report->subtype = "reported_content";
 		$report->owner_guid = $user->guid;
 		$report->title = elgg_echo('spam_throttle');
 		$report->address = $user->getURL();
-		$report->description = elgg_echo('spam_throttle:reported', array($type, $created, $time));
+		$report->description = elgg_echo('spam_throttle:reported', array($type, $created, $since));
 		$report->access_id = ACCESS_PRIVATE;
+		$report->state = 'active';
 		$report->save();
 	}
 
