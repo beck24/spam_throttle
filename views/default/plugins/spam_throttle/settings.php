@@ -28,7 +28,7 @@ $body .= elgg_view('input/text', array(
 $body .= " " . elgg_echo('spam_throttle:helptext:time') . '<br><br>';
 
 // action to perform if threshold is broken
-$body .= elgg_view('input/dropdown', array(
+$body .= elgg_view('input/select', array(
 	'name' => 'params[global_consequence]',
 	'value' => $vars['entity']->global_consequence ? $vars['entity']->global_consequence : 'suspend',
 	'options_values' => array(
@@ -67,7 +67,7 @@ foreach ($registered_types as $type => $subtypes) {
 		
 			// action to perform if threshold is broken
 			$attr = $type . ':' . $subtype . '_consequence';
-			$body .= elgg_view('input/dropdown', array(
+			$body .= elgg_view('input/select', array(
 				'name' => "params[{$attr}]",
 				'value' => $vars['entity']->$attr ? $vars['entity']->$attr : 'suspend',
 				'options_values' => array(
@@ -99,7 +99,7 @@ foreach ($registered_types as $type => $subtypes) {
 		
 		// action to perform if threshold is broken
 		$attr = $type . '_consequence';
-		$body .= elgg_view('input/dropdown', array(
+		$body .= elgg_view('input/select', array(
 			'name' => "params[{$attr}]",
 			'value' => $vars['entity']->$attr ? $vars['entity']->$attr : 'suspend',
 			'options_values' => array(

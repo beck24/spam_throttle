@@ -194,9 +194,6 @@ function limit_exceeded() {
 	$consequence = elgg_get_plugin_setting($type . '_consequence', PLUGIN_ID);
 
 	switch ($consequence) {
-		case "nothing":
-			break;
-
 		case "suspend":
 			$suspensiontime = elgg_get_plugin_setting('suspensiontime', PLUGIN_ID);
 			$user->spam_throttle_suspension = time() + 60 * 60 * $suspensiontime;
@@ -221,18 +218,8 @@ function limit_exceeded() {
 			register_error(elgg_echo('spam_throttle:deleted'));
 			break;
 
+		case "nothing":
 		default:
 			break;
-	}
-}
-
-
-/**
- * upgrades
- */
-function upgrades() {
-	if (elgg_is_admin_logged_in()) {
-		elgg_load_library(PLUGIN_ID . ':upgrades');
-		run_function_once(__NAMESPACE__ . '\\upgrade_20150323');
 	}
 }

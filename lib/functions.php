@@ -19,10 +19,16 @@ function is_exempt($user) {
 		return true;
 	}
 
+	$default = false;
+
 	// trusted users are exempt
 	if (elgg_is_active_plugin('trusted_users') && is_callable('trusted_users_is_trusted')) {
-		return trusted_users_is_trusted($user);
+		if (trusted_users_is_trusted($user)) {
+			$default = true;	
+		};
 	}
 
-	return false;
+	// give other plugins a chance to weigh in
+	$params = ['user' => $user];
+	return elgg_trigger_plugin_hook('spam_throttle', 'is_exempt', $params, $default);
 }

@@ -3,7 +3,7 @@
     <name>Spam Throttle</name>
     <id>spam_throttle</id>
     <author>Matt Beckett</author>
-    <version>2.1.0</version>
+    <version>3.0.0</version>
     <description>Configurable time-based limits to content creation to assist in managing spam abuse.</description>
     <website>http://mattbeckett.me/</website>
     <copyright>(C) Matt Beckett 2015</copyright>
@@ -14,7 +14,7 @@
     <!-- All plugins must require either elgg_version or elgg_release. -->
     <requires>
         <type>elgg_release</type>
-        <version>1.9</version>
+        <version>3.0.0-alpha.1</version>
     </requires>
  
     <suggests>

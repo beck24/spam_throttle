@@ -2,6 +2,9 @@
 
 x.x (mm/dd/yyyy):
 
+3.0.0 (04/16/2018):
+ - upgrade for Elgg 3
+
 2.1.0 (11/02/2015):
  - adds plugin hooks for custom count modifications for non-standard entities
  - adds plugin hook handlers to correct messages counts
