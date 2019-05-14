@@ -39,7 +39,7 @@ function global_messages_count_correction($hook, $type, $return, $params) {
 	
 	$ia = elgg_set_ignore_access(true);
 	$from_guid = elgg_get_logged_in_user_guid();
-	$right_messages = elgg_get_entities_from_metadata(array(
+	$right_messages = elgg_get_entities(array(
 		'type' => 'object',
 		'subtype' => 'messages',
 		'metadata_name_value_pairs' => array(
@@ -76,7 +76,7 @@ function messages_count_correction($hook, $type, $return, $params) {
 	$from_guid = elgg_get_logged_in_user_guid();
 	
 	$ia = elgg_set_ignore_access(true);
-	$right_messages = elgg_get_entities_from_metadata(array(
+	$right_messages = elgg_get_entities(array(
 		'type' => 'object',
 		'subtype' => 'messages',
 		'metadata_name_value_pairs' => array(
