@@ -33,7 +33,7 @@ function create_check($event, $object_type, $object) {
 	}
 
 	// reported content doesn't count (also this prevents an infinite loop...)
-	if (elgg_instanceof($object, 'object', 'reported_content')) {
+	if (($object instanceof \ElggObject) && ($object->getSubtype() == 'reported_content')) {
 		return true;
 	}
 
@@ -59,7 +59,7 @@ function create_check($event, $object_type, $object) {
 	if ($globallimit && $globaltime) {
 
 		// because 2 are created initially
-		if (elgg_instanceof($object, 'object', 'messages')) {
+		if (($object instanceof \ElggObject) && ($object->getSubtype() == 'messages')) {
 			$globallimit++;
 		}
 
