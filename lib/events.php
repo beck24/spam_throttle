@@ -201,9 +201,9 @@ function limit_exceeded() {
 			break;
 
 		case "ban":
-			$ia = elgg_set_ignore_access(true);
-			ban_user($user->guid, elgg_echo('spam_throttle:banned'));
-			elgg_set_ignore_access($ia);
+			elgg_call(ELGG_IGNORE_ACCESS, function() use ($user) {
+				ban_user($user->guid, elgg_echo('spam_throttle:banned'));
+			});
 			logout();
 			register_error(elgg_echo('spam_throttle:banned'));
 			forward();
@@ -212,9 +212,9 @@ function limit_exceeded() {
 		case "delete":
 			logout();
 			sleep(2); // prevent a race condition before deleting them
-			$ia = elgg_set_ignore_access(true);
-			$user->delete();
-			elgg_set_ignore_access($ia);
+			elgg_call(ELGG_IGNORE_ACCESS, function() use ($user) {
+				$user->delete();
+			});
 			register_error(elgg_echo('spam_throttle:deleted'));
 			break;
 

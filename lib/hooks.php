@@ -37,22 +37,23 @@ function global_messages_count_correction($hook, $type, $return, $params) {
 		'count' => true
 	));
 	
-	$ia = elgg_set_ignore_access(true);
-	$from_guid = elgg_get_logged_in_user_guid();
-	$right_messages = elgg_get_entities(array(
-		'type' => 'object',
-		'subtype' => 'messages',
-		'metadata_name_value_pairs' => array(
-			'name' => 'fromId',
-			'value' => $from_guid
-		),
-		'wheres' => array(
-			"e.owner_guid != {$from_guid}"
-		),
-		'created_time_lower' => $params['created_time_lower'],
-		'count' => true
-	));
-	elgg_set_ignore_access($ia);
+	$right_messages = elgg_call(ELGG_IGNORE_ACCESS, function() use ($params) {
+		$from_guid = elgg_get_logged_in_user_guid();
+		$right_messages = elgg_get_entities(array(
+			'type' => 'object',
+			'subtype' => 'messages',
+			'metadata_name_value_pairs' => array(
+				'name' => 'fromId',
+				'value' => $from_guid
+			),
+			'wheres' => array(
+				"e.owner_guid != {$from_guid}"
+			),
+			'created_time_lower' => $params['created_time_lower'],
+			'count' => true
+		));
+		return $right_messages;
+	});
 	
 	$corrected_count = $return - $wrong_messages + $right_messages;
 
@@ -73,23 +74,23 @@ function messages_count_correction($hook, $type, $return, $params) {
 		return $return;
 	}
 	
-	$from_guid = elgg_get_logged_in_user_guid();
-	
-	$ia = elgg_set_ignore_access(true);
-	$right_messages = elgg_get_entities(array(
-		'type' => 'object',
-		'subtype' => 'messages',
-		'metadata_name_value_pairs' => array(
-			'name' => 'fromId',
-			'value' => $from_guid
-		),
-		'wheres' => array(
-			"e.owner_guid != {$from_guid}"
-		),
-		'created_time_lower' => $params['created_time_lower'],
-		'count' => true
-	));
-	elgg_set_ignore_access($ia);
+	$right_messages = elgg_call(ELGG_IGNORE_ACCESS, function() use ($params) {
+		$from_guid = elgg_get_logged_in_user_guid();
+		$right_messages = elgg_get_entities(array(
+			'type' => 'object',
+			'subtype' => 'messages',
+			'metadata_name_value_pairs' => array(
+				'name' => 'fromId',
+				'value' => $from_guid
+			),
+			'wheres' => array(
+				"e.owner_guid != {$from_guid}"
+			),
+			'created_time_lower' => $params['created_time_lower'],
+			'count' => true
+		));
+		return $right_messages;
+	});
 
 	return $right_messages;
 }
