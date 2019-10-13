@@ -3,7 +3,10 @@
 namespace MBeckett\Spam\Throttle;
 
 // hook for menu:user_hover
-function hover_menu($hook, $type, $return, $params) {
+function hover_menu(\Elgg\Hook $hook) {
+	$return = $hook->getValue();
+	$params = $hook->getParams();
+	
 	$user = $params['entity'];
 	
 	if ($user->spam_throttle_suspension > time() && elgg_is_admin_logged_in()) {
@@ -28,7 +31,10 @@ function hover_menu($hook, $type, $return, $params) {
  * @param type $return
  * @param type $params
  */
-function global_messages_count_correction($hook, $type, $return, $params) {
+function global_messages_count_correction(\Elgg\Hook $hook) {
+	$return = $hook->getValue();
+	$params = $hook->getParams();
+	
 	$wrong_messages = elgg_get_entities(array(
 		'type' => 'object',
 		'subtype' => 'messages',
@@ -68,7 +74,9 @@ function global_messages_count_correction($hook, $type, $return, $params) {
  * @param type $return
  * @param type $params
  */
-function messages_count_correction($hook, $type, $return, $params) {
+function messages_count_correction(\Elgg\Hook $hook) {
+	$return = $hook->getValue();
+	$params = $hook->getParams();
 	
 	if (!isset($params['subtypes']) || $params['subtypes'][0] != 'messages') {
 		return $return;

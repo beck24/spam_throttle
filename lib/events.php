@@ -12,7 +12,8 @@ use ElggObject;
  * @param ElggObject $object
  * @return boolean
  */
-function create_check($event, $object_type, $object) {
+function create_check(\Elgg\Event $event) {
+	$object = $event->getObject();
 
 	if (!($object instanceof \ElggEntity)) {
 		return true;
