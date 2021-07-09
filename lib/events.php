@@ -12,7 +12,8 @@ use ElggObject;
  * @param ElggObject $object
  * @return boolean
  */
-function create_check($event, $object_type, $object) {
+function create_check(\Elgg\Event $event) {
+	$object = $event->getObject();
 
 	if (!($object instanceof \ElggEntity)) {
 		return true;
@@ -27,13 +28,13 @@ function create_check($event, $object_type, $object) {
 	// only want to track content they are creating
 	// some automated scripts may be triggered on their session
 	// also allow messages
-	if ((is_registered_entity_type($object->type, $object->getSubtype()) && !elgg_instanceof($object, 'object', 'messages'))
+	if ((is_registered_entity_type($object->type, $object->getSubtype()) && (($object->getType() != 'object') && ($object->getSubtype() != 'messages')))
 			&& $object->owner_guid != $user->guid) {
 		return true;
 	}
 
 	// reported content doesn't count (also this prevents an infinite loop...)
-	if (elgg_instanceof($object, 'object', 'reported_content')) {
+	if (($object instanceof \ElggObject) && ($object->getSubtype() == 'reported_content')) {
 		return true;
 	}
 
@@ -59,7 +60,7 @@ function create_check($event, $object_type, $object) {
 	if ($globallimit && $globaltime) {
 
 		// because 2 are created initially
-		if (elgg_instanceof($object, 'object', 'messages')) {
+		if (($object instanceof \ElggObject) && ($object->getSubtype() == 'messages')) {
 			$globallimit++;
 		}
 
@@ -201,9 +202,9 @@ function limit_exceeded() {
 			break;
 
 		case "ban":
-			$ia = elgg_set_ignore_access(true);
-			ban_user($user->guid, elgg_echo('spam_throttle:banned'));
-			elgg_set_ignore_access($ia);
+			elgg_call(ELGG_IGNORE_ACCESS, function() use ($user) {
+				ban_user($user->guid, elgg_echo('spam_throttle:banned'));
+			});
 			logout();
 			register_error(elgg_echo('spam_throttle:banned'));
 			forward();
@@ -212,9 +213,9 @@ function limit_exceeded() {
 		case "delete":
 			logout();
 			sleep(2); // prevent a race condition before deleting them
-			$ia = elgg_set_ignore_access(true);
-			$user->delete();
-			elgg_set_ignore_access($ia);
+			elgg_call(ELGG_IGNORE_ACCESS, function() use ($user) {
+				$user->delete();
+			});
 			register_error(elgg_echo('spam_throttle:deleted'));
 			break;
 
