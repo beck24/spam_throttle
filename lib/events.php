@@ -1,9 +1,5 @@
 <?php
 
-namespace MBeckett\Spam\Throttle;
-use ElggEntity;
-use ElggObject;
-
 /**
  * check if a user is over the threshold for content creation
  *
@@ -43,7 +39,7 @@ function create_check(\Elgg\Event $event) {
 		$timeleft = $user->spam_throttle_suspension - time();
 		$hours = ($timeleft - ($timeleft % 3600)) / 3600;
 		$minutes = round(($timeleft % 3600) / 60);
-		register_error(elgg_echo('spam_throttle:suspended', array($hours, $minutes)));
+		elgg_error_response(elgg_echo('spam_throttle:suspended', array($hours, $minutes)));
 		return false;
 	}
 	
@@ -140,7 +136,7 @@ function create_check(\Elgg\Event $event) {
 
 /**
  * called on shutdown after a user has violated a limit
- * 
+ *
  * @return type
  */
 function limit_exceeded() {
@@ -182,7 +178,7 @@ function limit_exceeded() {
 
 	if ($sendreport) {
 		$report = new \ElggObject;
-		$report->subtype = "reported_content";
+		$report->setSubtype('reported_content');
 		$report->owner_guid = $user->guid;
 		$report->title = elgg_echo('spam_throttle');
 		$report->address = $user->getURL();
@@ -198,7 +194,7 @@ function limit_exceeded() {
 		case "suspend":
 			$suspensiontime = elgg_get_plugin_setting('suspensiontime', PLUGIN_ID);
 			$user->spam_throttle_suspension = time() + 60 * 60 * $suspensiontime;
-			register_error(elgg_echo('spam_throttle:suspended', array($suspensiontime, '0')));
+			elgg_error_response(elgg_echo('spam_throttle:suspended', array($suspensiontime, '0')));
 			break;
 
 		case "ban":
@@ -206,8 +202,8 @@ function limit_exceeded() {
 				ban_user($user->guid, elgg_echo('spam_throttle:banned'));
 			});
 			logout();
-			register_error(elgg_echo('spam_throttle:banned'));
-			forward();
+			elgg_error_response(elgg_echo('spam_throttle:banned'));
+			return elgg_redirect_response();
 			break;
 
 		case "delete":
@@ -216,7 +212,7 @@ function limit_exceeded() {
 			elgg_call(ELGG_IGNORE_ACCESS, function() use ($user) {
 				$user->delete();
 			});
-			register_error(elgg_echo('spam_throttle:deleted'));
+			elgg_error_response(elgg_echo('spam_throttle:deleted'));
 			break;
 
 		case "nothing":

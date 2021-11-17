@@ -1,7 +1,5 @@
 <?php
 
-namespace MBeckett\Spam\Throttle;
-
 // hook for menu:user_hover
 function hover_menu(\Elgg\Hook $hook) {
 	$return = $hook->getValue();
@@ -11,21 +9,24 @@ function hover_menu(\Elgg\Hook $hook) {
 	
 	if ($user->spam_throttle_suspension > time() && elgg_is_admin_logged_in()) {
 	
-		$url = "action/spam_throttle/unsuspend?guid={$user->guid}";
-		$item = new \ElggMenuItem("spam_throttle_unsuspend", elgg_echo("spam_throttle:unsuspend"), $url);
-		$item->setConfirmText(elgg_echo('spam_throttle:unsuspend:confirm'));
-		$item->setSection('admin');
-	
-		$return[] = $item;
+		$return['spam_throttle_unsuspend'] = \ElggMenuItem::factory([
+			'name' => "spam_throttle_unsuspend",
+			'icon' => 'edit',
+			'text' => elgg_echo("spam_throttle:unsuspend"),
+			'href' => elgg_generate_action_url("spam_throttle/unsuspend", [
+				"guid" => $user->guid
+				]),
+			'confirm' => true,
+			'section' => 'admin',
+		]);
 	}
-	
 	return $return;
 }
 
 
 /**
  * fix the global count due to messages structure differences
- * 
+ *
  * @param type $hook
  * @param type $type
  * @param type $return
@@ -68,7 +69,7 @@ function global_messages_count_correction(\Elgg\Hook $hook) {
 
 /**
  * fix the global count due to messages structure differences
- * 
+ *
  * @param type $hook
  * @param type $type
  * @param type $return

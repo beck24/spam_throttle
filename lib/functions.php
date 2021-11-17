@@ -1,12 +1,8 @@
 <?php
 
-namespace MBeckett\Spam\Throttle;
-
-use ElggUser;
-
 /**
  * Is the user exempt from throttling?
- * 
+ *
  * @param \ElggUser $user
  * @return boolean
  */
@@ -24,7 +20,7 @@ function is_exempt($user) {
 	// trusted users are exempt
 	if (elgg_is_active_plugin('trusted_users') && is_callable('trusted_users_is_trusted')) {
 		if (trusted_users_is_trusted($user)) {
-			$default = true;	
+			$default = true;
 		};
 	}
 
