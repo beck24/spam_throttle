@@ -24,8 +24,7 @@ function create_check(\Elgg\Event $event) {
 	// only want to track content they are creating
 	// some automated scripts may be triggered on their session
 	// also allow messages
-	if ((is_registered_entity_type($object->type, $object->getSubtype()) && (($object->getType() != 'object') && ($object->getSubtype() != 'messages')))
-			&& $object->owner_guid != $user->guid) {
+	if ((($object->getType() != 'object') && ($object->getSubtype() != 'messages')) && $object->owner_guid != $user->guid) {
 		return true;
 	}
 
