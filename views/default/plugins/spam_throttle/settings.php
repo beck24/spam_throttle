@@ -44,7 +44,7 @@ echo elgg_view_module('main', $title, $body);
 
 
 // loop through all of our object subtypes
-$registered_types = get_registered_entity_types();
+$registered_types = elgg_entity_types_with_capability('searchable');
 $registered_types['object'][] = 'messages';
 
 foreach ($registered_types as $type => $subtypes) {

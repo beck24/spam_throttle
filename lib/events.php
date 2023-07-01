@@ -9,6 +9,11 @@
  * @return boolean
  */
 function create_check(\Elgg\Event $event) {
+
+	if(!elgg_is_logged_in()) {
+		return true;
+	}
+	
 	$object = $event->getObject();
 
 	if (!($object instanceof \ElggEntity)) {
@@ -49,8 +54,8 @@ function create_check(\Elgg\Event $event) {
 
 	// They've made it this far, time to check if they've exceeded limits or not
 	// first check for global setting
-	$globallimit = (int) elgg_get_plugin_setting('global_limit', PLUGIN_ID);
-	$globaltime = (int) elgg_get_plugin_setting('global_time', PLUGIN_ID);
+	$globallimit = (int) elgg_get_plugin_setting('global_limit', 'spam_throttle');
+	$globaltime = (int) elgg_get_plugin_setting('global_time', 'spam_throttle');
 
 	if ($globallimit && $globaltime) {
 
@@ -74,7 +79,7 @@ function create_check(\Elgg\Event $event) {
 		// note that some entity types may need to be counted slightly differently
 		// eg. core messages plugin creates a entities on behalf of a recipient, so a direct count of objects is incorrect
 		// let plugins chime in to make corrections for their entities
-		$entitycount = elgg_trigger_plugin_hook('spam_throttle', 'entity_count:global', $params, $entitycount);
+		$entitycount = elgg_trigger_event_results('spam_throttle', 'entity_count:global', $params, $entitycount);
 
 		if ($entitycount > $globallimit) {
 			elgg_unregister_event_handler('shutdown', 'system', __NAMESPACE__ . '\\limit_exceeded');
@@ -90,8 +95,8 @@ function create_check(\Elgg\Event $event) {
 	}
 
 	// 	if we're still going now we haven't exceeded globals, check for individual types
-	$limit = (int) elgg_get_plugin_setting($typesubtype . '_limit', PLUGIN_ID);
-	$time = (int) elgg_get_plugin_setting($typesubtype . '_time', PLUGIN_ID);
+	$limit = (int) elgg_get_plugin_setting($typesubtype . '_limit', 'spam_throttle');
+	$time = (int) elgg_get_plugin_setting($typesubtype . '_time', 'spam_throttle');
 
 	if ($limit && $time) {
 
@@ -114,7 +119,7 @@ function create_check(\Elgg\Event $event) {
 		// note that some entity types may need to be counted slightly differently
 		// eg. core messages plugin creates a entities on behalf of a recipient, so a direct count of objects is incorrect
 		// let plugins chime in to make corrections for their entities
-		$entitycount = elgg_trigger_plugin_hook('spam_throttle', 'entity_count', $params, $entitycount);
+		$entitycount = elgg_trigger_event_results('spam_throttle', 'entity_count', $params, $entitycount);
 
 		if ($entitycount > $limit) {
 			elgg_unregister_event_handler('shutdown', 'system', __NAMESPACE__ . '\\limit_exceeded');
@@ -154,7 +159,7 @@ function limit_exceeded() {
 		return;
 	}
 
-	$reporttime = (int) elgg_get_plugin_setting('reporttime', PLUGIN_ID);
+	$reporttime = (int) elgg_get_plugin_setting('reporttime', 'spam_throttle');
 	$time = time();
 	$created_since = $time - ($reporttime * 60 *60);
 
@@ -187,11 +192,11 @@ function limit_exceeded() {
 		$report->save();
 	}
 
-	$consequence = elgg_get_plugin_setting($type . '_consequence', PLUGIN_ID);
+	$consequence = elgg_get_plugin_setting($type . '_consequence', 'spam_throttle');
 
 	switch ($consequence) {
 		case "suspend":
-			$suspensiontime = elgg_get_plugin_setting('suspensiontime', PLUGIN_ID);
+			$suspensiontime = elgg_get_plugin_setting('suspensiontime', 'spam_throttle');
 			$user->spam_throttle_suspension = time() + 60 * 60 * $suspensiontime;
 			elgg_error_response(elgg_echo('spam_throttle:suspended', array($suspensiontime, '0')));
 			break;

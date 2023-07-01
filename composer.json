@@ -13,6 +13,6 @@
 		"composer/installers": "^1.0.8"
 	},
 	"conflict": {
-		"elgg/elgg": "<4.0"
+		"elgg/elgg": "<5.0"
 	}
 }

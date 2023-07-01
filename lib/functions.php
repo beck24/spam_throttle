@@ -26,5 +26,5 @@ function is_exempt($user) {
 
 	// give other plugins a chance to weigh in
 	$params = ['user' => $user];
-	return elgg_trigger_plugin_hook('spam_throttle', 'is_exempt', $params, $default);
+	return elgg_trigger_event_results('spam_throttle', 'is_exempt', $params, $default);
 }
